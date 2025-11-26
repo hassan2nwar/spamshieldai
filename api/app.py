@@ -60,5 +60,22 @@ def health():
 def api_health():
     return jsonify({'status': 'healthy', 'service': 'spamshieldai-api'}), 200
 
+
+@app.route('/', methods=['GET'])
+def root():
+    """Root endpoint: provides basic API metadata and indicates if models are loaded"""
+    version = os.environ.get('APP_VERSION', '1.0.0')
+    models_loaded = (model is not None) and (vectorizer is not None)
+    return jsonify({
+        'message': 'SpamShieldAI API',
+        'status': 'running',
+        'models_loaded': models_loaded,
+        'version': version,
+        'endpoints': {
+            'health': '/health or /api/health (GET)',
+            'analyze': '/api/analyze (POST)'
+        }
+    }), 200
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
