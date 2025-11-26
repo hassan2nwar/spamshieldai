@@ -1,0 +1,40 @@
+# Production override for docker-compose.yml
+# Use with: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+version: '3.8'
+
+services:
+  api:
+    environment:
+      - FLASK_ENV=production
+      - FLASK_DEBUG=false
+    # Remove volumes in production if models are baked into image
+    # volumes:
+    #   - ./models:/app/models:ro
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+
+  frontend:
+    environment:
+      - VITE_API_URL=${VITE_API_URL}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+

@@ -1,0 +1,12 @@
+Terminal 1 - Backend:
+------------------------
+cd C:\Users\user\Downloads\spamshieldai-main\api
+python app.py
+------------------------------------------------------
+
+
+Terminal 2 - Frontend:
+------------------------
+cd C:\Users\user\Downloads\spamshieldai-main\frontend
+npm run dev
+------------------------------------------------------
