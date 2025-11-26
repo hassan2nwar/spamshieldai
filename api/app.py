@@ -42,15 +42,15 @@ def analyze():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/')
+
+# Minimal health endpoints for Railway
+@app.route('/health', methods=['GET'])
 def health():
-    return jsonify({'status': 'ok', 'api': 'SpamShield'})
+    return jsonify({'status': 'healthy', 'service': 'spamshieldai-api'}), 200
 
-
-@app.route('/api/health')
+@app.route('/api/health', methods=['GET'])
 def api_health():
-    # Keep a lightweight, always-available health endpoint for platform checks
-    return jsonify({'status': 'ok', 'api': 'SpamShield'}), 200
+    return jsonify({'status': 'healthy', 'service': 'spamshieldai-api'}), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))

@@ -27,8 +27,8 @@ RUN apt-get update \
 COPY api/requirements-api.txt ./requirements-api.txt
 RUN pip install --upgrade pip && pip install -r requirements-api.txt gunicorn
 
-# Copy the entire repository into the container (models live at /app/models)
-COPY . /app
+# Copy only the API code into /app (so app.py is at /app/app.py)
+COPY api/ /app/
 
 # Ensure the models folder exists (avoid failing silently) - optional
 RUN mkdir -p /app/models || true
