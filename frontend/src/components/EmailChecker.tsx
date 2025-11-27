@@ -37,7 +37,9 @@ const EmailChecker: React.FC = () => {
       // Fallback: same hostname, port 5000
       return `${window.location.protocol}//${window.location.hostname}:5000/api/analyze`;
     } catch (e) {
-      return 'http://localhost:5000/api/analyze';
+      const localFallback = 'http://localhost:5000/api/analyze';
+      // If we are on a deployed site and no VITE_API_URL is set, show a visible warning in the UI (handled in component state below)
+      return localFallback;
     }
   })();
   const analyzeEmail = async () => {
@@ -84,6 +86,12 @@ const EmailChecker: React.FC = () => {
 
   return (
     <div className="space-y-8">
+      {/* Show a warning if VITE_API_URL is not set and we're not running on localhost */}
+      {(!import.meta.env?.VITE_API_URL && !['localhost', '127.0.0.1'].includes(window.location.hostname)) && (
+        <div className="bg-yellow-50 text-yellow-800 border border-yellow-200 rounded-lg p-3 mb-4">
+          <strong>Warning:</strong> Backend API URL not configured (VITE_API_URL). Requests will try to reach <em>localhost</em> and will fail when running in production.
+        </div>
+      )}
       {/* Form Section */}
       <div className="bg-white rounded-xl shadow-lg p-8">
         <div className="flex items-center gap-3 mb-6">

@@ -36,15 +36,20 @@ git push origin main
 
 ### Step 4: Set Environment Variables
 
-**For API Service:**
+**For API Service (Backend):**
 1. Go to API service → **Variables** tab
-2. Add:
+2. Add required variables:
+   ```
+   CORS_ORIGINS=https://your-frontend-name.up.railway.app
+   FLASK_ENV=production
+   MODEL_BASE_URL=  # optional - set if you host models externally
+   ```
    ```
    CORS_ORIGINS=https://your-frontend-name.up.railway.app
    FLASK_ENV=production
    ```
 
-**For Frontend Service:**
+**For Frontend Service (Frontend):**
 1. Go to Frontend service → **Variables** tab
 2. Add:
    ```
@@ -60,7 +65,7 @@ git push origin main
 **Option B:** If models are too large:
 1. Go to API service → **Volumes** tab
 2. Create a volume and mount to `/app/models`
-3. Upload models via Railway CLI or SSH
+3. Upload models via Railway CLI or SSH, or set `MODEL_BASE_URL` in the API variables to download them at startup.
 
 ### Step 6: Get Your URLs
 
