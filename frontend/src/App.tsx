@@ -196,7 +196,7 @@ const App: React.FC = () => {
             </div>
           </div>
           <div className="border-t border-slate-200 pt-4 sm:pt-6 text-center text-slate-600 text-xs sm:text-sm">
-            <p>Built with security and privacy in mind</p>
+            <p>© 2024 SpamShieldAI. Engineered for security, designed for privacy. All rights reserved.</p>
           </div>
         </div>
       </footer>
