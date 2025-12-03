@@ -1,7 +1,7 @@
 /// File: src/components/AboutSection.tsx
 import React from 'react';
 import { Shield, Heart } from 'lucide-react'; // Make sure these icons are installed/imported
-
+import { Heart, Github, Mail, Star, Linkedin } from 'lucide-react';
 const AboutSection: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-8">
@@ -69,19 +69,101 @@ const AboutSection: React.FC = () => {
 
       {/* About the Creator */}
       <aside className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg p-4 sm:p-6 md:p-8 text-white">
+
         <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+      
           <Heart className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
+      
           <h2 className="text-xl sm:text-2xl font-bold">About the Creator</h2>
+      
         </div>
+      
         <p className="text-blue-50 text-sm sm:text-base md:text-lg leading-relaxed">
-         Hi, I’m Hassan Anwar a developer with a strong passion for data, and building tools that make people’s digital lives safer. 
-          I created SpamShield because I’ve seen how easily someone can fall victim to phishing emails, fake alerts, and cleverly disguised scams. 
+      
+          Hi, I'm Hassan Anwar, a developer with a strong passion for data, and building tools that make people's digital lives safer. 
+      
+          I created SpamShield because I've seen how easily someone can fall victim to phishing emails, fake alerts, and cleverly disguised scams. 
+      
           Even tech-savvy people get fooled sometimes.
+      
         </p>
+      
         <p className="text-blue-50 mt-3 sm:mt-4 text-sm sm:text-base">
+      
           If you have suggestions for improvements or found this tool helpful,
+      
           I'd love to hear from you!
+      
         </p>
+      
+        
+      
+        {/* Connect Section */}
+      
+        <div className="mt-6 pt-6 border-t border-blue-400/30">
+      
+          <p className="text-blue-100 font-semibold mb-3 text-sm sm:text-base">
+      
+            Let's Connect:
+      
+          </p>
+      
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      
+            <a 
+      
+              href="https://github.com/hassancodeanwar" 
+      
+              target="_blank"
+      
+              rel="noopener noreferrer"
+      
+              className="flex items-center justify-center gap-2 px-3 py-2.5 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 backdrop-blur-sm border border-white/20 hover:border-white/40 text-sm"
+      
+            >
+      
+              <Github className="w-4 h-4" />
+      
+              <span>GitHub</span>
+      
+            </a>
+      
+            <a 
+      
+              href="https://linkedin.com/in/hassancodeanwar" 
+      
+              target="_blank"
+      
+              rel="noopener noreferrer"
+      
+              className="flex items-center justify-center gap-2 px-3 py-2.5 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 backdrop-blur-sm border border-white/20 hover:border-white/40 text-sm"
+      
+            >
+      
+              <Linkedin className="w-4 h-4" />
+      
+              <span>LinkedIn</span>
+      
+            </a>
+      
+            <a 
+      
+              href="mailto:hassancodeanwar@gmail.com"
+      
+              className="flex items-center justify-center gap-2 px-3 py-2.5 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 backdrop-blur-sm border border-white/20 hover:border-white/40 text-sm col-span-2 sm:col-span-1"
+      
+            >
+      
+              <Mail className="w-4 h-4" />
+      
+              <span>Email</span>
+      
+            </a>
+      
+          </div>
+      
+        </div>
+      
       </aside>
     </div>
   );
