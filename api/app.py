@@ -1,20 +1,22 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import joblib
 from pathlib import Path
 import os
+import sys
+import logging
 
-BASE_DIR = Path(os.path.dirname(__file__)).resolve()
-# Allow overriding the models directory via env var (defaults to /app/models or ./models relative to app)
-DEFAULT_MODELS_DIR = BASE_DIR / 'models'
-MODELS_DIR = Path(os.environ.get('MODELS_DIR', str(DEFAULT_MODELS_DIR))).resolve()
-# Fallback to a root /models if needed
-FALLBACK_MODELS_DIR = Path('/models')
+# Add src to path
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-MODEL_PATH = (MODELS_DIR / 'spam_classifier.pkl') if (MODELS_DIR / 'spam_classifier.pkl').exists() else (FALLBACK_MODELS_DIR / 'spam_classifier.pkl')
-VECT_PATH = (MODELS_DIR / 'vectorizer.pkl') if (MODELS_DIR / 'vectorizer.pkl').exists() else (FALLBACK_MODELS_DIR / 'vectorizer.pkl')
+from models.inference import Inference
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Initialize Flask app
 app = Flask(__name__)
+
 # Enable CORS using the CORS_ORIGINS env var if present; default to allow all
 CORS_ORIGINS = os.environ.get('CORS_ORIGINS', '*')
 CORS(app, resources={
@@ -27,7 +29,6 @@ CORS(app, resources={
 }, expose_headers='Content-Type')
 
 # Configure logging to include request details
-import logging
 handler = logging.StreamHandler()
 handler.setLevel(logging.INFO)
 app.logger.addHandler(handler)
@@ -43,60 +44,92 @@ def log_request_info():
         request.remote_addr,
     )
 
-print(f"Using model path: {MODEL_PATH}")
-print(f"Using vectorizer path: {VECT_PATH}")
+# Load model and vectorizer paths from environment or use defaults
+MODEL_DIR = Path(os.environ.get('MODELS_DIR', str(Path(__file__).parent.parent / 'models'))).resolve()
+MODEL_PATH = MODEL_DIR / 'spam_classifier.pkl'
+VECT_PATH = MODEL_DIR / 'vectorizer.pkl'
+
+# Fallback to root /models if not found
+if not MODEL_PATH.exists():
+    MODEL_PATH = Path('/models/spam_classifier.pkl')
+if not VECT_PATH.exists():
+    VECT_PATH = Path('/models/vectorizer.pkl')
+
+logger.info(f"Using model path: {MODEL_PATH}")
+logger.info(f"Using vectorizer path: {VECT_PATH}")
+
+# Initialize inference engine
+inference = None
 try:
-    model = joblib.load(MODEL_PATH) if MODEL_PATH.exists() else None
-    vectorizer = joblib.load(VECT_PATH) if VECT_PATH.exists() else None
+    inference = Inference(model_path=str(MODEL_PATH), vectorizer_path=str(VECT_PATH))
+    logger.info("Model and vectorizer loaded successfully")
 except Exception as e:
-    model = None
-    vectorizer = None
-    print(f"Error loading model/vectorizer: {e}")
+    inference = None
+    logger.error(f"Error loading model/vectorizer: {e}")
 
 @app.route('/api/analyze', methods=['POST'])
 def analyze():
-    if model is None or vectorizer is None:
+    if inference is None:
         return jsonify({'error': 'Model not loaded'}), 500
+    
     data = request.get_json(force=True)
     message = data.get('message', '')
+    
     if not message:
         return jsonify({'error': 'No message provided'}), 400
+    
     try:
-        msg_vector = vectorizer.transform([message])
-        pred = model.predict(msg_vector)[0]
-        proba = model.predict_proba(msg_vector)[0]
-        label = 'spam' if int(pred) == 1 else 'ham'
-        confidence = proba[int(pred)] * 100
+        result = inference.predict(message)
         return jsonify({
-            'label': label,
-            'confidence': round(confidence, 2),
+            'label': result['label'],
+            'prediction': result['prediction'],
+            'confidence': round(result['confidence'] * 100, 2),
+            'probabilities': {
+                'ham': round(result['probabilities']['ham'] * 100, 2),
+                'spam': round(result['probabilities']['spam'] * 100, 2),
+            },
             'input': message
         })
     except Exception as e:
+        logger.error(f"Error during prediction: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 
 # Minimal health endpoints for Railway
 @app.route('/health', methods=['GET'])
 def health():
-    return jsonify({'status': 'healthy', 'service': 'spamshieldai-api'}), 200
+    models_loaded = inference is not None
+    return jsonify({
+        'status': 'healthy' if models_loaded else 'degraded',
+        'service': 'spamshieldai-api',
+        'models_loaded': models_loaded
+    }), 200
 
 @app.route('/api/health', methods=['GET'])
 def api_health():
-    return jsonify({'status': 'healthy', 'service': 'spamshieldai-api'}), 200
+    models_loaded = inference is not None
+    return jsonify({
+        'status': 'healthy' if models_loaded else 'degraded',
+        'service': 'spamshieldai-api',
+        'models_loaded': models_loaded
+    }), 200
 
 
 @app.route('/api/ping', methods=['GET'])
 def api_ping():
     """A simple ping endpoint that returns minimal server info for debugging"""
-    return jsonify({'status': 'ok', 'server': 'spamshield-api', 'models_loaded': model is not None}), 200
+    return jsonify({
+        'status': 'ok',
+        'server': 'spamshield-api',
+        'models_loaded': inference is not None
+    }), 200
 
 
 @app.route('/', methods=['GET'])
 def root():
     """Root endpoint: provides basic API metadata and indicates if models are loaded"""
     version = os.environ.get('APP_VERSION', '1.0.0')
-    models_loaded = (model is not None) and (vectorizer is not None)
+    models_loaded = inference is not None
     return jsonify({
         'message': 'SpamShieldAI API',
         'status': 'running',

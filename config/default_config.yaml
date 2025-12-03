@@ -1,0 +1,26 @@
+# Default configuration for SMS Spam Classifier
+training:
+  test_size: 0.2
+  random_state: 42
+  stratify: true
+  
+vectorizer:
+  lowercase: true
+  stop_words: english
+  max_df: 0.95
+  min_df: 2
+  
+model:
+  type: logistic_regression
+  max_iter: 1000
+  
+paths:
+  data_dir: data/raw
+  raw_file: SMSSpamCollection
+  zip_file: smsspamcollection.zip
+  model_dir: models
+  model_file: spam_classifier.pkl
+  vectorizer_file: vectorizer.pkl
+  
+dataset:
+  url: https://archive.ics.uci.edu/ml/machine-learning-databases/00228/smsspamcollection.zip
