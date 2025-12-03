@@ -1,0 +1,29 @@
+# SpamShieldAI Configuration File
+# ML Model Parameters
+
+model:
+  name: "SMS Spam Classifier"
+  version: "1.0.0"
+  type: "logistic_regression"
+  
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  interim_dir: "data/interim"
+  external_dir: "data/external"
+  
+training:
+  test_split: 0.2
+  random_state: 42
+  vectorizer_type: "count"
+  max_features: 5000
+  
+paths:
+  models: "models"
+  notebook: "notebooks"
+  
+api:
+  host: "0.0.0.0"
+  port: 5000
+  debug: false
+  cors_origins: "*"
